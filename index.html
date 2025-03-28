@@ -1,76 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Borauto Quiz</title>
+        <title>Taco and Burrito</title>
         <meta charset="utf-8" />
-        <link rel="stylesheet" href="./src/css/main.css" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-            rel="stylesheet"
-        />
     </head>
     <body>
-        <!-- Desktop version of UI -->
-        {{> loading}} 
-        <div id="ui">
-            {{> start}} 
-            {{> game}} 
-            {{> quiz}} 
-            {{> scores}} 
-            {{> top-scores}}
-            {{> controls}}
-            {{> how-to-play}}
-        </div>
-        <!-- Desktop version of UI -->
-        <a-scene
-            id="scene"
-            renderer="antialias: true"
-            light="defaultLightsEnabled: false"
-            fog="type: linear; color: #64c2c4; far: 5; near: 0; density: 6.45025"
-            loading-screen="enabled: false"
-        >
-            <!-- Camera cannot be added to template so how a-frame will do it otherwise -->
-            <a-entity id="rig" camera-holder>
-                <a-entity
-                    camera
-                    look-controls="enabled: false"
-                    orbit-controls="target: 0 1 0; minDistance: 1; maxDistance: 2; initialPosition: 0 2 -3; rotateSpeed: 0.5; maxPolarAngle: 90; autoRotate: true;"
-                >
-                </a-entity>
-                <!-- Debug camera and controls -->
-                <!-- <a-camera position="0 1.2 -1.5">
-                    <a-cursor
-                        raycaster="objects: .collidable; far: 3"
-                    ></a-cursor>
-                </a-camera> -->
-                <a-entity
-                    id="right-controller"
-                    laser-controls="hand: right"
-                    raycaster="objects: .collidable; far: 3"
-                ></a-entity>
-                <a-entity
-                    id="left-controller"
-                    laser-controls="hand: left"
-                    raycaster="objects: .collidable; far: 3"
-                ></a-entity>
-            </a-entity>
-            <!-- Common Env -->
-            <a-template name="env"></a-template>
-            <a-template name="effects"></a-template>
-            <a-template name="preload"></a-template>
-            <!-- Router -->
-            <a-route id="loading" template="loading"></a-route>
-            <a-route id="start" template="start"></a-route>
-            <a-route id="game" template="game"></a-route>
-            <a-route id="quiz" template="quiz"></a-route>
-            <a-route id="scores" template="scores"></a-route>
-            <a-route id="top-scores" template="top-scores"></a-route>
-            <a-route id="controls" template="controls"></a-route>
-            <a-route id="how-to-play" template="how-to-play"></a-route>
-        </a-scene>
-        <script type="module" src="/src/main.ts"></script>
-        <script src="/vendor/aframe-keyboard.js" defer></script>
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
     </body>
 </html>

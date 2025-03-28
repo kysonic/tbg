@@ -1,12 +1,27 @@
 {
   "name": "tbg",
   "version": "0.0.1",
-  "description": "Taco Burrito ",
+  "description": "Taco Burrito",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "ts:check": "tsc --noEmit"
+  },
   "devDependencies": {
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@types/three": "^0.174.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.3",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.175.0"
   }
 }
