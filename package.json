@@ -1,0 +1,12 @@
+{
+  "name": "tbg",
+  "version": "0.0.1",
+  "description": "Taco Burrito ",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^6.2.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
