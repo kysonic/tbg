@@ -8,6 +8,7 @@ export interface Scene {
     onStart?: () => void;
     onStop?: () => void;
     onResize?: (width: number, height: number) => void;
+    onTick?: () => void;
 }
 
 export interface SceneManagerConfig {
@@ -25,8 +26,6 @@ export class SceneManager {
     constructor(config: SceneManagerConfig) {
         this.app = new Application();
         this.config = config;
-
-        this.init();
     }
 
     async init() {
@@ -100,6 +99,12 @@ export class SceneManager {
 
         if (this.currentScene?.onResize) {
             this.currentScene.onResize(width, height);
+        }
+    }
+
+    public onTick() {
+        if (this.currentScene?.onTick) {
+            this.currentScene.onTick();
         }
     }
 

@@ -1,11 +1,11 @@
-import { Assets, Container, Text } from 'pixi.js';
-import { Background } from '../services/Background';
+import { Assets, Container } from 'pixi.js';
+import { Background } from '../shared/Background';
 import { Nullable } from '../types/common';
-import { Transitions } from '../services/Transitions';
-import { SceneManager } from '../services/SceneManager';
+import { Transitions } from '../shared/Transitions';
+import { SceneManager } from '../shared/SceneManager';
 
-export class HomeScreen {
-    public name = 'Home';
+export class MenuScene {
+    public name = 'Menu';
     public container = new Container();
     private sceneManager: SceneManager;
     private background: Nullable<Background> = null;
@@ -17,7 +17,7 @@ export class HomeScreen {
     }
 
     async init() {
-        const texture = await Assets.load('/assets/background.jpg');
+        const texture = await Assets.load('/assets/menu/background.jpg');
         this.background = new Background(texture);
         this.background.cover(
             this.sceneManager.application.screen.width,
