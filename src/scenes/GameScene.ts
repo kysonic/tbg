@@ -1,4 +1,4 @@
-import { Container } from 'pixi.js';
+import { Assets, Container, Sprite } from 'pixi.js';
 import { SceneManager } from '../shared/SceneManager';
 import { Ragdoll } from '../entities/Ragdoll';
 
@@ -10,10 +10,26 @@ export class GameScene {
 
     constructor(sceneManager: SceneManager) {
         this.sceneManager = sceneManager;
+
+        this.init();
+    }
+
+    async init() {
+        // await this.cartman();
+
         this.ragdoll = new Ragdoll(
             this.sceneManager.application,
             this.container,
         );
+    }
+
+    async cartman() {
+        const texture = await Assets.load('/assets/game/arm.png');
+        const sprite = new Sprite(texture);
+        sprite.angle = 10;
+        sprite.x = -400;
+        sprite.y = -200;
+        this.container.addChild(sprite);
     }
 
     onStart() {
@@ -29,6 +45,6 @@ export class GameScene {
     }
 
     onTick() {
-        this.ragdoll.onTick();
+        this.ragdoll?.onTick();
     }
 }

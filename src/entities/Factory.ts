@@ -14,7 +14,7 @@ export class RagdollFactory {
                     group: Body.nextGroup(true),
                 },
                 chamfer: {
-                    radius: [15 * scale, 15 * scale, 15 * scale, 15 * scale],
+                    radius: [70 * scale, 70 * scale, 70 * scale, 70 * scale],
                 },
                 render: {
                     fillStyle: '#FFBC42',
@@ -133,7 +133,7 @@ export class RagdollFactory {
 
         const head = Bodies.rectangle(
             x,
-            y - 60 * scale,
+            y - 60 * scale, // 60
             34 * scale,
             40 * scale,
             headOptions,
@@ -147,7 +147,7 @@ export class RagdollFactory {
         );
         const rightUpperArm = Bodies.rectangle(
             x + 39 * scale,
-            y - 15 * scale,
+            y - 20 * scale,
             20 * scale,
             40 * scale,
             rightArmOptions,
@@ -318,7 +318,7 @@ export class RagdollFactory {
             bodyA: head,
             pointA: {
                 x: 0,
-                y: 25 * scale,
+                y: 40 * scale,
             },
             pointB: {
                 x: 0,
@@ -326,12 +326,6 @@ export class RagdollFactory {
             },
             bodyB: chest,
             stiffness: 0.6,
-        });
-
-        const legToLeg = Constraint.create({
-            bodyA: leftLowerLeg,
-            bodyB: rightLowerLeg,
-            stiffness: 0.01,
         });
 
         const person = Composite.create({
