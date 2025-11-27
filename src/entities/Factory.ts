@@ -205,8 +205,8 @@ export class RagdollFactory {
         const chestToRightUpperArm = Constraint.create({
             bodyA: chest,
             pointA: {
-                x: 24 * scale,
-                y: -23 * scale,
+                x: 30 * scale,
+                y: -40 * scale,
             },
             pointB: {
                 x: 0,
@@ -219,8 +219,8 @@ export class RagdollFactory {
         const chestToLeftUpperArm = Constraint.create({
             bodyA: chest,
             pointA: {
-                x: -24 * scale,
-                y: -23 * scale,
+                x: -30 * scale,
+                y: -40 * scale,
             },
             pointB: {
                 x: 0,
@@ -233,7 +233,7 @@ export class RagdollFactory {
         const chestToLeftUpperLeg = Constraint.create({
             bodyA: chest,
             pointA: {
-                x: -10 * scale,
+                x: -20 * scale,
                 y: 30 * scale,
             },
             pointB: {
@@ -247,7 +247,7 @@ export class RagdollFactory {
         const chestToRightUpperLeg = Constraint.create({
             bodyA: chest,
             pointA: {
-                x: 10 * scale,
+                x: 20 * scale,
                 y: 30 * scale,
             },
             pointB: {
@@ -290,8 +290,8 @@ export class RagdollFactory {
             bodyA: leftUpperLeg,
             bodyB: leftLowerLeg,
             pointA: {
-                x: 0,
-                y: 20 * scale,
+                x: -20,
+                y: 25 * scale,
             },
             pointB: {
                 x: 0,
@@ -304,8 +304,8 @@ export class RagdollFactory {
             bodyA: rightUpperLeg,
             bodyB: rightLowerLeg,
             pointA: {
-                x: 0,
-                y: 20 * scale,
+                x: 20,
+                y: 25 * scale,
             },
             pointB: {
                 x: 0,

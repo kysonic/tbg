@@ -18,8 +18,57 @@ import {
 } from 'matter-js';
 import { RagdollFactory } from './Factory';
 
-const TEXTURES = {
-    head: '/assets/game/jlo.png',
+const SPRITES = {
+    head: {
+        texture: '/assets/game/head.png',
+        zIndex: 5,
+        scale: 1,
+    },
+    chest: {
+        texture: '/assets/game/body.png',
+        zIndex: 2,
+        scale: 1,
+    },
+    'left-arm': {
+        texture: '/assets/game/upper_arm.png',
+        zIndex: 2,
+        scale: 1,
+    },
+    'right-arm': {
+        texture: '/assets/game/upper_arm.png',
+        zIndex: 2,
+        scale: -1,
+    },
+    'left-arm-lower': {
+        texture: '/assets/game/lower_arm.png',
+        zIndex: 3,
+        scale: 1,
+    },
+    'right-arm-lower': {
+        texture: '/assets/game/lower_arm.png',
+        zIndex: 3,
+        scale: -1,
+    },
+    'left-leg': {
+        texture: '/assets/game/upper_leg.png',
+        zIndex: 1,
+        scale: 1,
+    },
+    'right-leg': {
+        texture: '/assets/game/upper_leg.png',
+        zIndex: 1,
+        scale: -1,
+    },
+    'left-leg-lower': {
+        texture: '/assets/game/lower_leg.png',
+        zIndex: 1,
+        scale: 1,
+    },
+    'right-leg-lower': {
+        texture: '/assets/game/lower_leg.png',
+        zIndex: 1,
+        scale: -1,
+    },
 };
 
 export class Ragdoll {
@@ -29,7 +78,6 @@ export class Ragdoll {
     private ragdoll: Composite;
     private arm: Composite;
     private sprites: Sprite[] = [];
-    private armSprite: Sprite;
 
     constructor(application: Application, container: Container) {
         this.app = application;
@@ -58,18 +106,19 @@ export class Ragdoll {
     async createSprites() {
         for (const body of this.ragdoll.bodies) {
             console.log(body.label);
-            if (TEXTURES[body.label as keyof typeof TEXTURES]) {
-                const texture = await Assets.load(
-                    TEXTURES[body.label as keyof typeof TEXTURES],
-                );
+            if (SPRITES[body.label as keyof typeof SPRITES]) {
+                const spriteConfig =
+                    SPRITES[body.label as keyof typeof SPRITES];
+                const texture = await Assets.load(spriteConfig.texture);
                 const sprite = new Sprite(texture);
 
                 const width = body.bounds.max.x - body.bounds.min.x;
                 const height = body.bounds.max.y - body.bounds.min.y;
                 console.log(body.label, width, height);
 
+                sprite.scale.x *= spriteConfig.scale;
                 sprite.anchor.set(0.5, 0.5);
-                sprite.zIndex = 1;
+                sprite.zIndex = spriteConfig.zIndex;
                 this.container.addChild(sprite);
                 this.sprites.push(sprite);
             } else {
@@ -134,24 +183,25 @@ export class Ragdoll {
     }
 
     private async createArm(): Promise<void> {
-        const arm = Bodies.rectangle(
-            this.app.view.width / 2 - 500,
-            200,
-            573,
-            298,
-            {
-                isStatic: true,
-            },
-        );
-
-        // arm.angle = Math.PI / 4;
+        const arm = Bodies.rectangle(this.app.view.width / 2, 20, 50, 50, {
+            isStatic: true,
+        });
+        // const arm = Bodies.rectangle(
+        //     this.app.view.width / 2 - 500,
+        //     200,
+        //     573,
+        //     298,
+        //     {
+        //         isStatic: true,
+        //     },
+        // );
 
         const head = this.ragdoll?.bodies?.[1];
         const armConstraint = Constraint.create({
             bodyA: arm,
             bodyB: head,
-            pointA: { x: 500, y: 50 },
-            pointB: { x: 0, y: 100 },
+            pointA: { x: 0, y: 50 },
+            pointB: { x: 0, y: -100 },
             stiffness: 0.3,
             length: 0,
         });
