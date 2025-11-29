@@ -27,7 +27,7 @@ export class Game {
         this.sceneManager.addScene(menuScene);
         this.sceneManager.addScene(gameScene);
 
-        this.sceneManager.changeTo('Game');
+        this.sceneManager.changeTo('Menu');
     }
 
     // Global events

@@ -1,71 +1,80 @@
 import {
     Sprite,
-    Graphics,
     Container,
     Application,
     Rectangle,
     Assets,
+    Texture,
 } from 'pixi.js';
 import {
     Bodies,
     Composite,
     Engine,
     World,
-    Body,
     Mouse,
     MouseConstraint,
     Constraint,
+    Body,
 } from 'matter-js';
 import { RagdollFactory } from './Factory';
+import { Utils } from '../shared/Utils';
+import { sound } from '@pixi/sound';
+
+const DANCING_PARTS = [
+    'left-arm-lower',
+    'right-arm-lower',
+    'left-leg-lower',
+    'right-leg-lower',
+];
 
 const SPRITES = {
     head: {
-        texture: '/assets/game/head.png',
+        texture: '/assets/game/img/head.png',
         zIndex: 5,
         scale: 1,
     },
     chest: {
-        texture: '/assets/game/body.png',
+        texture: '/assets/game/img/body.png',
         zIndex: 2,
         scale: 1,
     },
     'left-arm': {
-        texture: '/assets/game/upper_arm.png',
+        texture: '/assets/game/img/upper_arm.png',
         zIndex: 2,
         scale: 1,
     },
     'right-arm': {
-        texture: '/assets/game/upper_arm.png',
+        texture: '/assets/game/img/upper_arm.png',
         zIndex: 2,
         scale: -1,
     },
     'left-arm-lower': {
-        texture: '/assets/game/lower_arm.png',
+        texture: '/assets/game/img/lower_arm.png',
         zIndex: 3,
         scale: 1,
     },
     'right-arm-lower': {
-        texture: '/assets/game/lower_arm.png',
+        texture: '/assets/game/img/lower_arm.png',
         zIndex: 3,
         scale: -1,
     },
     'left-leg': {
-        texture: '/assets/game/upper_leg.png',
+        texture: '/assets/game/img/upper_leg.png',
         zIndex: 1,
         scale: 1,
     },
     'right-leg': {
-        texture: '/assets/game/upper_leg.png',
+        texture: '/assets/game/img/upper_leg.png',
         zIndex: 1,
         scale: -1,
     },
     'left-leg-lower': {
-        texture: '/assets/game/lower_leg.png',
+        texture: '/assets/game/img/lower_leg.png',
         zIndex: 1,
         scale: 1,
     },
     'right-leg-lower': {
-        texture: '/assets/game/lower_leg.png',
+        texture: '/assets/game/img/lower_leg.png',
         zIndex: 1,
         scale: -1,
     },
@@ -78,6 +87,13 @@ export class Ragdoll {
     private ragdoll: Composite;
     private arm: Composite;
     private sprites: Sprite[] = [];
+    private headTextures: { opened: Texture | null; closed: Texture | null } = {
+        opened: null,
+        closed: null,
+    };
+
+    public isSinging = false;
+    public danceDirection = 1;
 
     constructor(application: Application, container: Container) {
         this.app = application;
@@ -91,6 +107,7 @@ export class Ragdoll {
         this.createSprites();
         // this.createBounds();
         this.setupMouseInteraction();
+        this.setupSounds();
     }
 
     private createRagdoll(): void {
@@ -104,82 +121,28 @@ export class Ragdoll {
     }
 
     async createSprites() {
+        // Preload head textures
+        this.headTextures.opened = await Assets.load(
+            '/assets/game/img/head.png',
+        );
+        this.headTextures.closed = await Assets.load(
+            '/assets/game/img/head_closed.png',
+        );
+
         for (const body of this.ragdoll.bodies) {
-            console.log(body.label);
             if (SPRITES[body.label as keyof typeof SPRITES]) {
                 const spriteConfig =
                     SPRITES[body.label as keyof typeof SPRITES];
                 const texture = await Assets.load(spriteConfig.texture);
                 const sprite = new Sprite(texture);
 
-                const width = body.bounds.max.x - body.bounds.min.x;
-                const height = body.bounds.max.y - body.bounds.min.y;
-                console.log(body.label, width, height);
-
                 sprite.scale.x *= spriteConfig.scale;
                 sprite.anchor.set(0.5, 0.5);
                 sprite.zIndex = spriteConfig.zIndex;
                 this.container.addChild(sprite);
                 this.sprites.push(sprite);
-            } else {
-                const graphics = new Graphics();
-                const width = body.bounds.max.x - body.bounds.min.x;
-                const height = body.bounds.max.y - body.bounds.min.y;
-                console.log(body.label, width, height);
-                graphics.beginFill(0xffffff);
-                graphics.drawRoundedRect(
-                    -width / 2,
-                    -height / 2,
-                    width,
-                    height,
-                    5,
-                );
-                graphics.endFill();
-
-                const texture = this.app.renderer.generateTexture(graphics);
-                const sprite = new Sprite(texture);
-
-                sprite.anchor.set(0.5);
-                sprite.zIndex = 1;
-                this.container.addChild(sprite);
-                this.sprites.push(sprite);
             }
         }
-    }
-
-    private createBounds(): void {
-        const width = this.app.screen.width;
-        const height = this.app.screen.height;
-        const thickness = 50;
-
-        const walls = [
-            // Левая стена
-            Bodies.rectangle(-thickness / 2, height / 2, thickness, height, {
-                isStatic: true,
-            }),
-            // Правая стена
-            Bodies.rectangle(
-                width + thickness / 2,
-                height / 2,
-                thickness,
-                height,
-                { isStatic: true },
-            ),
-            // Пол
-            Bodies.rectangle(
-                width / 2,
-                height + thickness / 2,
-                width,
-                thickness,
-                { isStatic: true },
-            ),
-            // Потолок
-            Bodies.rectangle(width / 2, -thickness / 2, width, thickness, {
-                isStatic: true,
-            }),
-        ];
-
-        World.add(this.engine.world, walls);
     }
 
     private async createArm(): Promise<void> {
@@ -252,6 +215,50 @@ export class Ragdoll {
         );
     }
 
+    async signTaco() {
+        if (this.isSinging) {
+            return;
+        }
+        this.isSinging = true;
+        sound.play('taco');
+        this.mouthClose();
+        await Utils.delay(80);
+        this.mouthOpen();
+        await Utils.delay(70);
+        this.mouthClose();
+        await Utils.delay(50);
+        this.mouthOpen();
+        this.isSinging = false;
+    }
+
+    async singBurrito() {
+        if (this.isSinging) {
+            return;
+        }
+        this.isSinging = true;
+        sound.play('burrito');
+        this.mouthClose();
+        await Utils.delay(50);
+        this.mouthOpen();
+        await Utils.delay(80);
+        this.mouthClose();
+        await Utils.delay(80);
+        this.mouthOpen();
+        await Utils.delay(50);
+        this.mouthClose();
+        await Utils.delay(100);
+        this.mouthOpen();
+        this.isSinging = false;
+    }
+
+    mouthClose() {
+        this.sprites[1].texture = this.headTextures.closed as Texture;
+    }
+
+    mouthOpen() {
+        this.sprites[1].texture = this.headTextures.opened as Texture;
+    }
+
     onTick() {
         Engine.update(this.engine, 1000 / 60);
 
@@ -273,5 +280,42 @@ export class Ragdoll {
         //         sprite.rotation = body.angle;
         //     }
         // }
+    }
+
+    setupSounds() {
+        sound.add('taco', '/assets/game/sounds/taco.mp3');
+        sound.add('burrito', '/assets/game/sounds/burrito.mp3');
+    }
+
+    dance() {
+        setTimeout(
+            () => {
+                const chest = this.ragdoll.bodies[0];
+                Body.applyForce(chest, chest.position, {
+                    x: this.danceDirection * 0.5,
+                    y: 0,
+                });
+                this.danceDirection *= -1;
+
+                const randomPart =
+                    DANCING_PARTS[
+                        Math.floor(Math.random() * DANCING_PARTS.length - 1)
+                    ];
+
+                const part = this.ragdoll.bodies.find(
+                    (body) => body.label === randomPart,
+                );
+
+                if (part) {
+                    Body.applyForce(part, part?.position, {
+                        x: -this.danceDirection * 0.3,
+                        y: 0.1,
+                    });
+                }
+
+                this.dance();
+            },
+            Math.random() * (1000 - 800) + 800,
+        );
     }
 }

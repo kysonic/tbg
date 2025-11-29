@@ -237,7 +237,7 @@ export class RagdollFactory {
                 y: 30 * scale,
             },
             pointB: {
-                x: 0,
+                x: -10,
                 y: -10 * scale,
             },
             bodyB: leftUpperLeg,
@@ -251,7 +251,7 @@ export class RagdollFactory {
                 y: 30 * scale,
             },
             pointB: {
-                x: 0,
+                x: 10,
                 y: -10 * scale,
             },
             bodyB: rightUpperLeg,
