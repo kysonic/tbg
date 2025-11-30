@@ -1,5 +1,6 @@
 import { TextStyle, Container, Text } from 'pixi.js';
 import { gsap } from 'gsap';
+import { DropShadowFilter } from 'pixi-filters';
 
 interface AnimatedTextOptions {
     text: string;
@@ -10,6 +11,7 @@ interface AnimatedTextOptions {
     animationSpeed?: number;
     delayBetweenLetters?: number;
     scale?: number;
+    withShadow?: boolean;
 }
 
 export class AnimatedText {
@@ -27,10 +29,9 @@ export class AnimatedText {
             animationSpeed: 0.05,
             delayBetweenLetters: 100,
             scale: 1,
+            withShadow: false,
             ...options,
         };
-
-        console.log(options);
 
         this.container = new Container();
         this.container.position.set(
@@ -42,7 +43,14 @@ export class AnimatedText {
     }
 
     private createLetters(): void {
-        const { text, fontSize, fontFamily, fill, scale } = this.options;
+        const { text, fontSize, fontFamily, fill, scale, withShadow } =
+            this.options;
+
+        const shadowFilter = new DropShadowFilter({
+            blur: 0,
+            alpha: 0.6,
+            color: 0x000000,
+        });
 
         let currentX = 0;
 
@@ -60,12 +68,14 @@ export class AnimatedText {
                 fontSize: fontSize,
                 fill: fill,
                 fontWeight: 'bold',
+                align: 'center',
             });
 
             const letterText = new Text(letter, textStyle);
             letterText.anchor.set(0, 0.5);
             letterText.position.set(currentX, 0);
             letterText.scale.set(scale);
+            letterText.filters = withShadow ? [shadowFilter] : [];
 
             // Начальное состояние для анимации
             letterText.alpha = 0;

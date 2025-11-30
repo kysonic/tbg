@@ -4,8 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
     <title>Taco & Burrito Game</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preload" href="/fonts/sp.ttf" as="font" type="font/ttf" crossorigin>
     <script src="https://raw.githack.com/strangerintheq/rgba/0.0.10/rgba.js"></script>
 </head>
 
@@ -13,7 +15,7 @@
     <div id="app">
         <div id="pixi-container"></div>
         <div id="rgba-container">
-            <canvas id="rgba-canvas" style="width: 100wv; height: 100vh"></canvas>
+            <canvas id="rgba-canvas" style="width: 100dvw; height: 100dvh"></canvas>
         </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

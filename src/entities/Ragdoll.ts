@@ -215,12 +215,14 @@ export class Ragdoll {
         );
     }
 
-    async signTaco() {
+    async signTaco(mute?: boolean) {
         if (this.isSinging) {
             return;
         }
         this.isSinging = true;
-        sound.play('taco');
+        if (!mute) {
+            sound.play('taco');
+        }
         this.mouthClose();
         await Utils.delay(80);
         this.mouthOpen();
@@ -231,12 +233,14 @@ export class Ragdoll {
         this.isSinging = false;
     }
 
-    async singBurrito() {
+    async singBurrito(mute?: boolean) {
         if (this.isSinging) {
             return;
         }
         this.isSinging = true;
-        sound.play('burrito');
+        if (!mute) {
+            sound.play('burrito');
+        }
         this.mouthClose();
         await Utils.delay(50);
         this.mouthOpen();

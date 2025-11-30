@@ -5,7 +5,7 @@ body {
 
 @font-face {
     font-family: 'SPFont';
-    src: url('/fonts/fonts_spfont 2.ttf') format('ttf');
+    src: url('/fonts/sp.ttf') format('truetype');
 }
 
 #pixi-container {
