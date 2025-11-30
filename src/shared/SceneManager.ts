@@ -30,8 +30,10 @@ export class SceneManager {
 
     async init() {
         await this.app.init({
-            background: this.config.backgroundColor,
+            // background: this.config.backgroundColor,
+            backgroundAlpha: 0,
             resizeTo: window,
+            preference: 'webgl',
         });
 
         document.getElementById('pixi-container')!.appendChild(this.app.canvas);

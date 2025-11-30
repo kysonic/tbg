@@ -6,9 +6,7 @@ export class Game {
     private sceneManager: SceneManager;
 
     constructor() {
-        this.sceneManager = new SceneManager({
-            backgroundColor: 0x2c3e50,
-        });
+        this.sceneManager = new SceneManager({});
 
         this.init();
     }
@@ -34,6 +32,15 @@ export class Game {
     private setupEventListeners(): void {
         window.addEventListener('resize', () => {
             this.sceneManager.resize(window.innerWidth, window.innerHeight);
+            const rgba = document.getElementById(
+                'rgba-canvas',
+            ) as HTMLCanvasElement;
+
+            if (rgba) {
+                console.log(rgba, window.innerWidth, window.innerHeight);
+                rgba.width = window.innerWidth;
+                rgba.height = window.innerHeight;
+            }
         });
 
         this.sceneManager.application.ticker.add(() => {

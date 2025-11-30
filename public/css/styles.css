@@ -7,3 +7,16 @@ body {
     font-family: 'SPFont';
     src: url('/fonts/fonts_spfont 2.ttf') format('ttf');
 }
+
+#pixi-container {
+    position: relative;
+    z-index: 2;
+}
+
+#rgba-container {
+    position: absolute;
+    top: 0;
+    width: 100dvw;
+    height: 100dvh;
+    z-index: 1;
+}
