@@ -20,7 +20,8 @@ export class MenuScene {
 
     async init() {
         await this.createBackground();
-        this.createGameTitle();
+        await this.createGameTitle();
+        document.getElementById('loader').style.display = 'none';
         this.createStartText();
     }
 

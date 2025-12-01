@@ -1,23 +1,50 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
-    <title>Taco & Burrito Game</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="preload" href="/fonts/sp.ttf" as="font" type="font/ttf" crossorigin>
-    <script src="/vendor/rgba.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="ScreenOrientation" content="autoRotate:disabled" />
+        <title>Taco & Burrito Game</title>
+        <link rel="stylesheet" href="/css/styles.css" />
+        <link
+            rel="preload"
+            href="/fonts/sp.ttf"
+            as="font"
+            type="font/ttf"
+            crossorigin
+        />
+        <script src="/vendor/rgba.js"></script>
+    </head>
 
-<body>
-    <div id="app">
-        <div id="pixi-container"></div>
-        <div id="rgba-container">
-            <canvas id="rgba-canvas" style="width: 100dvw; height: 100dvh"></canvas>
+    <body>
+        <div id="loader" class="loader">
+            <div class="item">
+                <img width="50" height="50" src="/assets/game/img/burrito.png" />
+                LOADING
+            </div>
         </div>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
-</body>
+        <div id="app">
+            <div id="pixi-container"></div>
+            <div id="rgba-container">
+                <canvas
+                    id="rgba-canvas"
+                    style="width: 100dvw; height: 100dvh"
+                ></canvas>
+            </div>
+        </div>
+        <div>
+            <audio preload="auto" src="/assets/game/sounds/minus.mp3"></audio>
+            <audio
+                preload="auto"
+                src="/assets/game/sounds/what-kinda-song.mp3"
+            ></audio>
+            <audio preload="auto" src="/assets/game/sounds/spicy.mp3"></audio>
+            <audio
+                preload="auto"
+                src="/assets/game/sounds/countdown.mp3"
+            ></audio>
+        </div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>
