@@ -12,6 +12,7 @@ interface AnimatedTextOptions {
     delayBetweenLetters?: number;
     scale?: number;
     withShadow?: boolean;
+    centered?: boolean;
 }
 
 export class AnimatedText {
@@ -30,6 +31,7 @@ export class AnimatedText {
             delayBetweenLetters: 100,
             scale: 1,
             withShadow: false,
+            centered: true,
             ...options,
         };
 
@@ -43,8 +45,15 @@ export class AnimatedText {
     }
 
     private createLetters(): void {
-        const { text, fontSize, fontFamily, fill, scale, withShadow } =
-            this.options;
+        const {
+            text,
+            fontSize,
+            fontFamily,
+            fill,
+            scale,
+            withShadow,
+            centered,
+        } = this.options;
 
         const shadowFilter = new DropShadowFilter({
             blur: 0,
@@ -68,7 +77,6 @@ export class AnimatedText {
                 fontSize: fontSize,
                 fill: fill,
                 fontWeight: 'bold',
-                align: 'center',
             });
 
             const letterText = new Text(letter, textStyle);
@@ -86,6 +94,13 @@ export class AnimatedText {
 
             // Обновляем позицию для следующей буквы
             currentX += letterText.width + 2;
+        }
+
+        if (centered) {
+            this.container.pivot.set(
+                this.container.width / 2,
+                this.container.height / 2,
+            );
         }
     }
 

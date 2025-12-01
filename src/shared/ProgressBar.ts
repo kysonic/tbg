@@ -198,4 +198,12 @@ export class ProgressBar {
         this.fill.destroy();
         this.container.destroy();
     }
+
+    public hide() {
+        this.container.alpha = 0;
+    }
+
+    public show() {
+        this.container.alpha = 1;
+    }
 }

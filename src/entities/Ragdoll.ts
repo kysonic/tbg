@@ -91,6 +91,7 @@ export class Ragdoll {
         opened: null,
         closed: null,
     };
+    private danceTimer: number = 0;
 
     public isSinging = false;
     public danceDirection = 1;
@@ -292,7 +293,7 @@ export class Ragdoll {
     }
 
     dance() {
-        setTimeout(
+        this.danceTimer = setTimeout(
             () => {
                 const chest = this.ragdoll.bodies[0];
                 Body.applyForce(chest, chest.position, {
@@ -321,5 +322,9 @@ export class Ragdoll {
             },
             Math.random() * (1000 - 800) + 800,
         );
+    }
+
+    stopDance() {
+        clearTimeout(this.danceTimer);
     }
 }

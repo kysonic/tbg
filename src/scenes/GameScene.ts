@@ -8,6 +8,7 @@ import { Utils } from '../shared/Utils';
 import { KaraokeText } from '../shared/KaraokeText';
 import { ProgressBar } from '../shared/ProgressBar';
 import { SpriteConfetti } from '../shared/SpriteConfetti';
+import { Transitions } from '../shared/Transitions';
 
 const KARAOKE_COMBINATIONS = [
     'TACO TACO BURRITO BURRITO',
@@ -20,6 +21,8 @@ const KARAOKE_COMBINATIONS = [
     'TACO TACO',
 ];
 
+const DEFAULT_TIME_LEFT = 30;
+
 export class GameScene {
     public name = 'Game';
     public container = new Container();
@@ -29,12 +32,17 @@ export class GameScene {
     private countdownText: AnimatedText | null = null;
     private karaokeText: KaraokeText | null = null;
     private scoreText: Text | null = null;
+    private timeText: Text | null = null;
     private scoreValue: AnimatedText | null = null;
     private progressBar: ProgressBar | null = null;
     private confetti: SpriteConfetti | null = null;
-    private score: number = 0;
-    private timeLeft: number = 30;
+    public score: number = 0;
+    private timeLeft: number = DEFAULT_TIME_LEFT;
     private deadline: number = 0;
+    private timer: number = 0;
+    private isPlaying = false;
+
+    private keyboardHandler: () => void = () => {};
 
     constructor(sceneManager: SceneManager) {
         this.sceneManager = sceneManager;
@@ -50,42 +58,33 @@ export class GameScene {
             this.container,
         );
 
+        this.prepareSounds();
         this.prepareGreenScreen();
-        this.setGreenScreen();
         this.prepareCountdownText();
         this.prepareKaraokeText();
-        this.prepareScoreText();
+        this.prepareText();
         this.prepareProgressBar();
         this.prepareConfetti();
+
+        this.setGreenScreen();
     }
 
     onStart() {
         console.log('Game started');
 
-        sound.add('minus', '/assets/game/sounds/minus.mp3');
-        sound.add('correct', '/assets/game/sounds/correct.mp3');
-        sound.add('incorrect', '/assets/game/sounds/incorrect.mp3');
-        sound.add('spicier', '/assets/game/sounds/spicy.mp3');
-        sound.add('whatkinda', '/assets/game/sounds/what-kinda-song.mp3');
-        sound.add('go', '/assets/game/sounds/go.mp3');
-        sound.add('countdown', '/assets/game/sounds/countdown.mp3');
+        this.isPlaying = true;
+        sound.stop('minus');
 
-        document.addEventListener(
-            'keydown',
-            this.handleKeyboardControls.bind(this),
-        );
+        this.keyboardHandler = this.handleKeyboardControls.bind(this);
 
         this.countdown();
-        // Scores
+        this.setGreenScreen();
         this.updateScore();
+        this.updateTimeLeft();
     }
 
     onStop() {
         console.log('Game stopped');
-        document.removeEventListener(
-            'keydown',
-            this.handleKeyboardControls.bind(this),
-        );
     }
 
     onResize() {
@@ -93,7 +92,9 @@ export class GameScene {
     }
 
     onTick() {
-        this.ragdoll?.onTick();
+        if (this.isPlaying) {
+            this.ragdoll?.onTick();
+        }
     }
 
     handleKeyboardControls(e: KeyboardEvent) {
@@ -119,6 +120,16 @@ export class GameScene {
         }
     }
 
+    prepareSounds() {
+        sound.add('minus', '/assets/game/sounds/minus.mp3');
+        sound.add('correct', '/assets/game/sounds/correct.mp3');
+        sound.add('incorrect', '/assets/game/sounds/incorrect.mp3');
+        sound.add('spicier', '/assets/game/sounds/spicy.mp3');
+        sound.add('whatkinda', '/assets/game/sounds/what-kinda-song.mp3');
+        sound.add('go', '/assets/game/sounds/go.mp3');
+        sound.add('countdown', '/assets/game/sounds/countdown.mp3');
+    }
+
     prepareGreenScreen() {
         this.greenScreen = new Graphics();
         this.greenScreen.beginFill(0x006400);
@@ -128,24 +139,38 @@ export class GameScene {
             this.sceneManager.application.screen.width,
             this.sceneManager.application.screen.height,
         );
-        this.greenScreen.zIndex = 1;
         this.greenScreen.endFill();
+        this.container.addChild(this.greenScreen);
+        this.greenScreen.zIndex = 1;
     }
 
     setGreenScreen() {
-        this.container.addChild(this.greenScreen!);
+        this.clearRgba();
+        this.greenScreen.alpha = 1;
     }
 
     removeGreenScreen() {
-        this.container.removeChild(this.greenScreen!);
+        this.greenScreen.alpha = 0;
     }
 
     rgba() {
         this.removeGreenScreen();
+
+        const canvas = document.getElementById(
+            'rgba-canvas',
+        ) as HTMLCanvasElement;
+        canvas.style.display = 'block';
         RGBA(fragmentShader, {
-            target: document.getElementById('rgba-canvas')!,
+            target: canvas,
             fullscreen: true,
         });
+    }
+
+    clearRgba() {
+        const canvas = document.getElementById(
+            'rgba-canvas',
+        ) as HTMLCanvasElement;
+        canvas.style.display = 'none';
     }
 
     prepareCountdownText() {
@@ -155,7 +180,7 @@ export class GameScene {
             fontFamily: 'SPFont',
             fill: 0xffff00,
             position: {
-                x: this.sceneManager.application.view.width / 2 - 70,
+                x: this.sceneManager.application.view.width / 2,
                 y: this.sceneManager.application.view.height / 2,
             },
             animationSpeed: 0.3,
@@ -188,7 +213,7 @@ export class GameScene {
         this.container.addChild(this.karaokeText.getContainer());
     }
 
-    prepareScoreText() {
+    prepareText() {
         this.scoreText = new Text('SCORE:', {
             fontFamily: 'SPFont',
             fontSize: 24,
@@ -209,27 +234,28 @@ export class GameScene {
             fill: 0x0066ff,
             position: {
                 x: 120,
-                y: 30,
+                y: 32,
             },
             animationSpeed: 0.1,
             delayBetweenLetters: 50,
             scale: 1,
+            centered: false,
         });
         this.container.addChild(this.scoreValue.getContainer());
-        // JLO TEXT
+        // Time Left
 
-        const nameText = new Text('TIME LEFT: 30', {
+        this.timeText = new Text(`TIME LEFT: ${this.timeLeft}`, {
             fontFamily: 'SPFont',
             fontSize: 24,
             fill: 0x0066ff,
             align: 'center',
         });
 
-        nameText.x = this.sceneManager.application.view.width - 200;
-        nameText.y = 20;
-        nameText.zIndex = 20;
+        this.timeText.x = this.sceneManager.application.view.width - 200;
+        this.timeText.y = 20;
+        this.timeText.zIndex = 20;
 
-        this.container.addChild(nameText);
+        this.container.addChild(this.timeText);
     }
 
     prepareProgressBar() {
@@ -253,10 +279,10 @@ export class GameScene {
             minPieces: 6,
             maxPieces: 12,
             pieceSize: 80,
-            downwardForce: 0.03,
-            horizontalForce: 0.05,
-            gravityScale: 0.01,
-            spread: 350,
+            downwardForce: 0.05,
+            horizontalForce: 0.07,
+            gravityScale: 0.05,
+            spread: 500,
         });
 
         this.container.addChild(this.confetti.getContainer());
@@ -264,12 +290,13 @@ export class GameScene {
 
     async countdown() {
         sound.play('whatkinda');
-        sound.play('countdown', { volume: 0.4 });
+        sound.play('countdown', { volume: 0.3 });
+        this.container.addChild(this.countdownText!.getContainer());
         this.countdownText?.setText('TRES');
         await this.countdownText?.animateIn();
         await Utils.delay(1000);
         sound.play('spicier');
-        sound.play('countdown', { volume: 0.4 });
+        sound.play('countdown', { volume: 0.3 });
         this.ragdoll.singBurrito(true);
         this.countdownText?.setText('DOS');
         await this.countdownText?.animateIn();
@@ -277,7 +304,7 @@ export class GameScene {
         this.ragdoll.singBurrito(true);
         await Utils.delay(500);
         this.ragdoll.singBurrito(true);
-        sound.play('countdown', { volume: 0.4 });
+        sound.play('countdown', { volume: 0.3 });
         this.countdownText?.setText('UNO');
         await this.countdownText?.animateIn();
         await Utils.delay(500);
@@ -292,14 +319,21 @@ export class GameScene {
             loop: true,
         });
 
+        document.addEventListener('keydown', this.keyboardHandler);
+
         this.ragdoll?.dance();
 
         this.rgba();
 
         this.startKaraoke();
+        this.progressBar.show();
+
+        this.timer = setInterval(this.handleTimer.bind(this), 1000);
     }
 
     async startKaraoke() {
+        if (!this.isPlaying) return;
+
         this.karaokeText.resetWords();
         this.progressBar.reset();
         clearTimeout(this.deadline);
@@ -326,8 +360,14 @@ export class GameScene {
         this.updateScore();
         await Utils.delay(200);
 
+        this.confettiRun(this.karaokeText.getCurrentWord());
+
+        this.checkNext();
+    }
+
+    async confettiRun(dish: string) {
         const texture = await Assets.load(
-            this.karaokeText.getCurrentWord() === 'TACO'
+            dish === 'TACO'
                 ? '/assets/game/img/taco.png'
                 : '/assets/game/img/burrito.png',
         );
@@ -336,8 +376,6 @@ export class GameScene {
             x: this.sceneManager.application.view.width / 2,
             y: this.sceneManager.application.view.height / 2,
         });
-
-        this.checkNext();
     }
 
     async incorrect() {
@@ -361,5 +399,48 @@ export class GameScene {
     updateScore() {
         this.scoreValue.setText(this.score.toString());
         this.scoreValue.animateIn();
+    }
+
+    handleTimer() {
+        this.timeLeft -= 1;
+        this.updateTimeLeft();
+
+        if (this.timeLeft <= 0) {
+            this.stopGame();
+        }
+    }
+
+    updateTimeLeft() {
+        this.timeText.text = `TIME LEFT: ${this.timeLeft}`;
+    }
+
+    stopGameInteractions() {
+        this.timeLeft = DEFAULT_TIME_LEFT;
+        this.karaokeText.fadeOut();
+        this.progressBar.reset();
+        this.progressBar.hide();
+        this.score = 0;
+        this.ragdoll.stopDance();
+        clearInterval(this.timer);
+        clearTimeout(this.deadline);
+        // Remove event listener
+        document.removeEventListener('keydown', this.keyboardHandler);
+    }
+
+    async stopGame() {
+        this.sceneManager.scenes.get('Scores').setScore(this.score);
+        this.stopGameInteractions();
+        await this.confettiRun('TACO');
+        sound.play('spicier', {
+            start: 1.3,
+        });
+        await this.ragdoll.singBurrito(true);
+        await Utils.delay(500);
+        this.sceneManager.changeTo('Scores', Transitions.fade(2000));
+        await Utils.delay(2000);
+        this.setGreenScreen();
+        this.isPlaying = false;
+        this.confetti.cleanupPieces();
+        // sound.stop('minus');
     }
 }

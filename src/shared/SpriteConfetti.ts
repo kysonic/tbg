@@ -49,7 +49,7 @@ export class SpriteConfetti {
     }
 
     public run(sprite: Sprite, position: { x: number; y: number }): void {
-        if (this.isRunning) return;
+        // if (this.isRunning) return;
 
         this.isRunning = true;
         this.createConfettiPieces(sprite, position);
@@ -212,7 +212,7 @@ export class SpriteConfetti {
         }
     }
 
-    private cleanupPieces(): void {
+    public cleanupPieces(): void {
         // Удаляем все помеченные для удаления конфити
         for (let i = this.pieces.length - 1; i >= 0; i--) {
             const piece = this.pieces[i];

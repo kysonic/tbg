@@ -4,6 +4,7 @@ import { Transition } from './Transitions';
 export interface Scene {
     name: string;
     container: Container;
+    setScore?: (score: number) => void;
     initialize?: () => Promise<void>;
     onStart?: () => void;
     onStop?: () => void;
@@ -18,7 +19,7 @@ export interface SceneManagerConfig {
 export class SceneManager {
     private app: Application;
     private config: SceneManagerConfig;
-    private scenes: Map<string, Scene> = new Map();
+    public scenes: Map<string, Scene> = new Map();
     private currentScene: Scene | null = null;
     private previousScene: Scene | null = null;
     private isTransitioning: boolean = false;

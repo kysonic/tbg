@@ -1,6 +1,7 @@
 import { SceneManager } from '../shared/SceneManager';
 import { MenuScene } from '../scenes/MenuScene';
 import { GameScene } from '../scenes/GameScene';
+import { ScoresScene } from '../scenes/ScoresScene';
 
 export class Game {
     private sceneManager: SceneManager;
@@ -21,9 +22,11 @@ export class Game {
     private async createScenes(): Promise<void> {
         const menuScene = new MenuScene(this.sceneManager);
         const gameScene = new GameScene(this.sceneManager);
+        const scoresScene = new ScoresScene(this.sceneManager);
 
         this.sceneManager.addScene(menuScene);
         this.sceneManager.addScene(gameScene);
+        this.sceneManager.addScene(scoresScene);
 
         this.sceneManager.changeTo('Menu');
     }
