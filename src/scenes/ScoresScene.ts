@@ -106,6 +106,7 @@ export class ScoresScene {
         this.restartText.anchor.set(0.5);
         this.restartText.interactive = true;
         this.restartText.zIndex = 20;
+        this.restartText.cursor = 'pointer';
 
         this.restartText.on('pointerover', () => {
             this.restartText.style.fill = 0x00ff00;

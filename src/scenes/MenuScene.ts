@@ -49,6 +49,7 @@ export class MenuScene {
         text.y = this.sceneManager.application.screen.height - 200;
         text.anchor.set(0.5);
         text.interactive = true;
+        text.cursor = 'pointer';
 
         text.on('pointerover', () => {
             text.style.fill = 0x00ff00;
