@@ -243,7 +243,7 @@ export class Ragdoll {
             sound.play('burrito');
         }
         this.mouthClose();
-        await Utils.delay(50);
+        await Utils.delay(20);
         this.mouthOpen();
         await Utils.delay(80);
         this.mouthClose();

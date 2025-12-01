@@ -21,6 +21,8 @@ const KARAOKE_COMBINATIONS = [
     'TACO TACO',
 ];
 
+const TUTORIAL_COMBINATION = 'TACO BURRITO TACO BURRITO';
+
 const DEFAULT_TIME_LEFT = 30;
 
 export class GameScene {
@@ -34,6 +36,7 @@ export class GameScene {
     private scoreText: Text | null = null;
     private timeText: Text | null = null;
     private scoreValue: AnimatedText | null = null;
+    private tutorialText: AnimatedText | null = null;
     private progressBar: ProgressBar | null = null;
     private confetti: SpriteConfetti | null = null;
     public score: number = 0;
@@ -41,6 +44,7 @@ export class GameScene {
     private deadline: number = 0;
     private timer: number = 0;
     private isPlaying = false;
+    private isTutorial = false;
 
     private keyboardHandler: () => void = () => {};
 
@@ -63,6 +67,7 @@ export class GameScene {
         this.prepareCountdownText();
         this.prepareKaraokeText();
         this.prepareText();
+        this.prepareTutorialText();
         this.prepareProgressBar();
         this.prepareConfetti();
 
@@ -98,25 +103,67 @@ export class GameScene {
     }
 
     handleKeyboardControls(e: KeyboardEvent) {
-        if (e.key === 't') {
-            if (this.karaokeText.getNextWord() === 'TACO') {
-                this.correct();
-            } else {
-                this.incorrect();
-            }
+        if (this.ragdoll.isSinging) return;
 
-            this.ragdoll?.signTaco();
-            this.karaokeText.revealNextWord();
+        if (e.key === 't') {
+            this.pressedTaco();
         }
         if (e.key === 'b') {
-            if (this.karaokeText.getNextWord() === 'BURRITO') {
-                this.correct();
-            } else {
-                this.incorrect();
-            }
+            this.pressedBurrito();
+        }
+    }
 
+    pressedTaco() {
+        if (!this.isTutorial) {
+            this.pressedUsualTaco();
+        } else {
+            this.pressedTutorialTaco();
+        }
+    }
+
+    pressedUsualTaco() {
+        if (this.karaokeText.getNextWord() === 'TACO') {
+            this.correct();
+        } else {
+            this.incorrect();
+        }
+
+        this.ragdoll?.signTaco();
+        this.karaokeText.revealNextWord();
+    }
+
+    pressedTutorialTaco() {
+        if (this.karaokeText.getNextWord() === 'TACO') {
+            this.ragdoll?.signTaco();
+            this.karaokeText.revealNextWord();
+            this.tutorialNext();
+        }
+    }
+
+    pressedBurrito() {
+        if (!this.isTutorial) {
+            this.pressedUsualBurrito();
+        } else {
+            this.pressedTutorialBurrito();
+        }
+    }
+
+    pressedUsualBurrito() {
+        if (this.karaokeText.getNextWord() === 'BURRITO') {
+            this.correct();
+        } else {
+            this.incorrect();
+        }
+
+        this.ragdoll?.singBurrito();
+        this.karaokeText.revealNextWord();
+    }
+
+    pressedTutorialBurrito() {
+        if (this.karaokeText.getNextWord() === 'BURRITO') {
             this.ragdoll?.singBurrito();
             this.karaokeText.revealNextWord();
+            this.tutorialNext();
         }
     }
 
@@ -258,6 +305,26 @@ export class GameScene {
         this.container.addChild(this.timeText);
     }
 
+    prepareTutorialText() {
+        this.tutorialText = new AnimatedText({
+            text: 'PRESS T KEY',
+            fontSize: 50,
+            fontFamily: 'SPFont',
+            fill: 0x0066ff,
+            position: {
+                x: this.sceneManager.application.view.width / 2,
+                y: this.sceneManager.application.view.height / 2,
+            },
+            animationSpeed: 0.3,
+            delayBetweenLetters: 20,
+            scale: 1,
+            withShadow: true,
+        });
+
+        this.tutorialText.getContainer().zIndex = 20;
+        this.container.addChild(this.tutorialText.getContainer());
+    }
+
     prepareProgressBar() {
         this.progressBar = new ProgressBar({
             width: 500,
@@ -307,9 +374,7 @@ export class GameScene {
         sound.play('countdown', { volume: 0.3 });
         this.countdownText?.setText('UNO');
         await this.countdownText?.animateIn();
-        await Utils.delay(500);
-        sound.play('go');
-        await Utils.delay(500);
+        await Utils.delay(1000);
         this.container.removeChild(this.countdownText!.getContainer());
         this.start();
     }
@@ -325,10 +390,46 @@ export class GameScene {
 
         this.rgba();
 
-        this.startKaraoke();
-        this.progressBar.show();
+        const tutorialPassed = localStorage.getItem('tbg:tutorial');
 
+        if (tutorialPassed) {
+            this.startMainGame();
+        } else {
+            this.startTutorialGame();
+        }
+    }
+
+    startMainGame() {
+        this.startKaraoke();
         this.timer = setInterval(this.handleTimer.bind(this), 1000);
+    }
+
+    async startTutorialGame() {
+        this.isTutorial = true;
+        this.progressBar.hide();
+        this.karaokeText.setText(TUTORIAL_COMBINATION);
+        await this.karaokeText.fadeIn(0.5);
+        this.tutorialText.setText('PRESS T KEY');
+        this.tutorialText.animateIn();
+    }
+
+    async tutorialNext() {
+        const dish = this.karaokeText.getNextWord();
+        if (dish) {
+            this.tutorialText.setText(`PRESS ${dish.charAt(0)} KEY`);
+            this.tutorialText.animateIn();
+        } else {
+            this.tutorialText.setText(`GO!!!!`);
+            this.tutorialText.animateIn();
+            await this.karaokeText.fadeOut(0.1);
+            await Utils.delay(500);
+            sound.play('go');
+            await Utils.delay(500);
+            this.tutorialText.getContainer().alpha = 0;
+            this.isTutorial = false;
+            localStorage.setItem('tbg:tutorial', 'true');
+            this.startMainGame();
+        }
     }
 
     async startKaraoke() {
@@ -345,7 +446,7 @@ export class GameScene {
 
         this.karaokeText.setText(text);
         await this.karaokeText.fadeIn(0.5);
-
+        this.progressBar.show();
         const deadLineTime = text.split(' ').length * 500 + 2000;
         this.progressBar.setProgress(deadLineTime);
         this.deadline = setTimeout(() => {
