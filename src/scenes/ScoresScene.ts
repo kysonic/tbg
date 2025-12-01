@@ -42,6 +42,11 @@ export class ScoresScene {
     }
 
     async createBoard() {
+        const scaleDelta = Math.min(
+            this.sceneManager.application.view.width / 1000,
+            this.sceneManager.application.view.height / 1000,
+        );
+
         const scoreBoardTexture = await Assets.load(
             '/assets/scores/img/score_board.png',
         );
@@ -49,8 +54,8 @@ export class ScoresScene {
         this.scoreBoardSprite.x =
             this.sceneManager.application.screen.width / 2;
         this.scoreBoardSprite.y =
-            this.sceneManager.application.screen.height / 2 - 50;
-        this.scoreBoardSprite.scale = 0.8;
+            this.sceneManager.application.screen.height / 2 - 20;
+        this.scoreBoardSprite.scale = Math.min(scaleDelta - 0.1, 0.8);
         this.scoreBoardSprite.zIndex = 2;
         this.scoreBoardSprite.anchor.set(0.5);
         this.container.addChild(this.scoreBoardSprite);
@@ -75,17 +80,18 @@ export class ScoresScene {
     createScoreText() {
         this.scoreText = new AnimatedText({
             text: `YOU SCORED ${this.score} POINTS!`,
-            fontSize: 50,
+            fontSize: this.sceneManager.application.view.width > 900 ? 50 : 18,
             fontFamily: 'SPFont',
             fill: 0xffff00,
             position: {
                 x: this.sceneManager.application.view.width / 2,
-                y: this.sceneManager.application.view.height / 2 - 20,
+                y: this.sceneManager.application.view.height / 2,
             },
             animationSpeed: 0.02,
             delayBetweenLetters: 100,
             scale: 1.2,
             withShadow: true,
+            centered: true,
         });
 
         this.scoreText.getContainer().zIndex = 20;
@@ -94,6 +100,11 @@ export class ScoresScene {
     }
 
     createRestartText() {
+        const scaleDelta = Math.min(
+            this.sceneManager.application.view.width / 1000,
+            this.sceneManager.application.view.height / 1000,
+        );
+
         this.restartText = new Text('PRESS TO RESTART', {
             fontFamily: 'SPFont',
             fontSize: 50,
@@ -102,20 +113,22 @@ export class ScoresScene {
         });
 
         this.restartText.x = this.sceneManager.application.screen.width / 2;
-        this.restartText.y = this.sceneManager.application.screen.height - 100;
+        this.restartText.y =
+            this.sceneManager.application.screen.height - scaleDelta * 100;
         this.restartText.anchor.set(0.5);
         this.restartText.interactive = true;
         this.restartText.zIndex = 20;
         this.restartText.cursor = 'pointer';
+        this.restartText.scale = Math.min(scaleDelta, 0.8);
 
         this.restartText.on('pointerover', () => {
             this.restartText.style.fill = 0x00ff00;
-            this.restartText.scale.set(1.1);
+            // this.restartText.scale.set(1.1);
         });
 
         this.restartText.on('pointerout', () => {
             this.restartText.style.fill = 0xffff00;
-            this.restartText.scale.set(1);
+            // this.restartText.scale.set(1);
         });
 
         this.restartText.on('pointerdown', () => {

@@ -147,7 +147,8 @@ export class Ragdoll {
     }
 
     private async createArm(): Promise<void> {
-        const arm = Bodies.rectangle(this.app.view.width / 2, 20, 50, 50, {
+        const top = this.app.view.height / 20;
+        const arm = Bodies.rectangle(this.app.view.width / 2, top, 50, 50, {
             isStatic: true,
         });
         // const arm = Bodies.rectangle(

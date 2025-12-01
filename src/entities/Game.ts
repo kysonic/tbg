@@ -2,12 +2,17 @@ import { SceneManager } from '../shared/SceneManager';
 import { MenuScene } from '../scenes/MenuScene';
 import { GameScene } from '../scenes/GameScene';
 import { ScoresScene } from '../scenes/ScoresScene';
+import { Utils } from '../shared/Utils';
 
 export class Game {
     private sceneManager: SceneManager;
 
     constructor() {
         this.sceneManager = new SceneManager({});
+
+        if (Utils.isMobile()) {
+            document.documentElement.requestFullscreen();
+        }
 
         this.init();
     }

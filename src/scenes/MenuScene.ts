@@ -9,6 +9,8 @@ export class MenuScene {
     public container = new Container();
     private sceneManager: SceneManager;
     private background: Nullable<Background> = null;
+    private gameTitleSprite: Nullable<Sprite> = null;
+    private text: Nullable<Text> = null;
 
     constructor(sceneManager: SceneManager) {
         this.sceneManager = sceneManager;
@@ -17,7 +19,12 @@ export class MenuScene {
     }
 
     async init() {
-        // Background
+        await this.createBackground();
+        this.createGameTitle();
+        this.createStartText();
+    }
+
+    async createBackground() {
         const texture = await Assets.load('/assets/menu/img/background.jpg');
         this.background = new Background(texture);
         this.background.cover(
@@ -25,45 +32,59 @@ export class MenuScene {
             this.sceneManager.application.screen.height,
         );
         this.container.addChild(this.background.sprite);
+    }
 
-        // Game Title
+    async createGameTitle() {
+        const scaleDelta = Math.min(
+            this.sceneManager.application.view.width / 1000,
+            this.sceneManager.application.view.height / 1000,
+        );
+
         const gameTitleTexture = await Assets.load(
             '/assets/menu/img/game_title.png',
         );
-        const gameTitleSprite = new Sprite(gameTitleTexture);
-        gameTitleSprite.x = this.sceneManager.application.screen.width / 2;
-        gameTitleSprite.y =
-            this.sceneManager.application.screen.height / 2 - 100;
-        gameTitleSprite.scale = 0.8;
-        gameTitleSprite.anchor.set(0.5);
-        this.container.addChild(gameTitleSprite);
-        // Text
-        const text = new Text('PRESS TO START', {
+        this.gameTitleSprite = new Sprite(gameTitleTexture);
+        this.gameTitleSprite.x = this.sceneManager.application.screen.width / 2;
+        this.gameTitleSprite.y =
+            this.sceneManager.application.screen.height / 2 - scaleDelta * 100;
+
+        this.gameTitleSprite.scale = Math.min(scaleDelta - 0.05, 0.8);
+        this.gameTitleSprite.anchor.set(0.5);
+        this.container.addChild(this.gameTitleSprite);
+    }
+
+    createStartText() {
+        const scaleDelta = Math.min(
+            this.sceneManager.application.view.width / 500,
+            this.sceneManager.application.view.height / 500,
+        );
+
+        this.text = new Text('PRESS TO START', {
             fontFamily: 'SPFont',
             fontSize: 50,
             fill: 0xffff00,
             align: 'center',
         });
 
-        text.x = this.sceneManager.application.screen.width / 2;
-        text.y = this.sceneManager.application.screen.height - 200;
-        text.anchor.set(0.5);
-        text.interactive = true;
-        text.cursor = 'pointer';
+        this.text.x = this.sceneManager.application.screen.width / 2;
+        this.text.y =
+            this.sceneManager.application.screen.height - scaleDelta * 100;
+        this.text.anchor.set(0.5);
+        this.text.interactive = true;
+        this.text.cursor = 'pointer';
+        this.text.scale = Math.min(scaleDelta, 0.8);
 
-        text.on('pointerover', () => {
-            text.style.fill = 0x00ff00;
-            text.scale.set(1.1);
+        this.text.on('pointerover', () => {
+            this.text.style.fill = 0x00ff00;
         });
 
-        text.on('pointerout', () => {
-            text.style.fill = 0xffff00;
-            text.scale.set(1);
+        this.text.on('pointerout', () => {
+            this.text.style.fill = 0xffff00;
         });
 
-        this.container.addChild(text);
+        this.container.addChild(this.text);
 
-        text.on('pointerdown', () => {
+        this.text.on('pointerdown', () => {
             this.sceneManager.changeTo('Game', Transitions.fade(1000));
         });
     }

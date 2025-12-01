@@ -9,6 +9,7 @@ import { KaraokeText } from '../shared/KaraokeText';
 import { ProgressBar } from '../shared/ProgressBar';
 import { SpriteConfetti } from '../shared/SpriteConfetti';
 import { Transitions } from '../shared/Transitions';
+import { CircleButton } from '../shared/CircleButton';
 
 const KARAOKE_COMBINATIONS = [
     'TACO TACO BURRITO BURRITO',
@@ -45,6 +46,8 @@ export class GameScene {
     private timer: number = 0;
     private isPlaying = false;
     private isTutorial = false;
+    private tacoButton: CircleButton | null = null;
+    private burritoButton: CircleButton | null = null;
 
     private keyboardHandler: () => void = () => {};
 
@@ -70,6 +73,9 @@ export class GameScene {
         this.prepareTutorialText();
         this.prepareProgressBar();
         this.prepareConfetti();
+        if (Utils.isMobile()) {
+            this.prepareControls();
+        }
 
         this.setGreenScreen();
     }
@@ -103,8 +109,6 @@ export class GameScene {
     }
 
     handleKeyboardControls(e: KeyboardEvent) {
-        if (this.ragdoll.isSinging) return;
-
         if (e.key === 't') {
             this.pressedTaco();
         }
@@ -114,6 +118,8 @@ export class GameScene {
     }
 
     pressedTaco() {
+        if (this.ragdoll.isSinging) return;
+
         if (!this.isTutorial) {
             this.pressedUsualTaco();
         } else {
@@ -141,6 +147,8 @@ export class GameScene {
     }
 
     pressedBurrito() {
+        if (this.ragdoll.isSinging) return;
+
         if (!this.isTutorial) {
             this.pressedUsualBurrito();
         } else {
@@ -243,7 +251,7 @@ export class GameScene {
     prepareKaraokeText() {
         this.karaokeText = new KaraokeText({
             text: '',
-            fontSize: 48,
+            fontSize: this.sceneManager.application.view.width > 900 ? 48 : 20,
             fontFamily: 'SPFont',
             baseColor: 0x0066ff, // Blue
             fillColor: 0x00ff66, // Green
@@ -308,7 +316,7 @@ export class GameScene {
     prepareTutorialText() {
         this.tutorialText = new AnimatedText({
             text: 'PRESS T KEY',
-            fontSize: 50,
+            fontSize: this.sceneManager.application.view.width > 900 ? 50 : 35,
             fontFamily: 'SPFont',
             fill: 0x0066ff,
             position: {
@@ -326,19 +334,24 @@ export class GameScene {
     }
 
     prepareProgressBar() {
+        const barWidth =
+            this.sceneManager.application.view.width > 900 ? 500 : 200;
+
         this.progressBar = new ProgressBar({
-            width: 500,
+            width: barWidth,
             height: 10,
             backgroundColor: 0x3498db,
             fillColor: 0xffcc00,
             borderColor: 0x2980b9,
             borderRadius: 10,
             position: {
-                x: this.sceneManager.application.view.width / 2 - 250,
+                x: this.sceneManager.application.view.width / 2 - barWidth / 2,
                 y: this.sceneManager.application.view.height - 50,
             },
         });
+        this.progressBar.getContainer().zIndex = 20;
         this.container.addChild(this.progressBar.getContainer());
+        this.progressBar.hide();
     }
 
     prepareConfetti() {
@@ -353,6 +366,44 @@ export class GameScene {
         });
 
         this.container.addChild(this.confetti.getContainer());
+    }
+
+    async prepareControls() {
+        // Taco
+        const tacoTexture = await Assets.load('/assets/game/img/taco.png');
+        this.tacoButton = new CircleButton(40, tacoTexture, {
+            backgroundColor: 0x3498db,
+            hoverColor: 0x2980b9,
+        });
+
+        this.tacoButton.getContainer().x = 45;
+        this.tacoButton.getContainer().y =
+            this.sceneManager.application.view.height - 45;
+        this.tacoButton.getContainer().zIndex = 25;
+        this.tacoButton.getContainer().alpha = 0.8;
+
+        this.container.addChild(this.tacoButton.getContainer());
+
+        this.tacoButton.onClick(this.pressedTaco.bind(this));
+        // Burrito
+        const burritoTexture = await Assets.load(
+            '/assets/game/img/burrito.png',
+        );
+        this.burritoButton = new CircleButton(40, burritoTexture, {
+            backgroundColor: 0x3498db,
+            hoverColor: 0x2980b9,
+        });
+
+        this.burritoButton.getContainer().x =
+            this.sceneManager.application.view.width - 45;
+        this.burritoButton.getContainer().y =
+            this.sceneManager.application.view.height - 45;
+        this.burritoButton.getContainer().zIndex = 25;
+        this.burritoButton.getContainer().alpha = 0.8;
+
+        this.container.addChild(this.burritoButton.getContainer());
+
+        this.burritoButton.onClick(this.pressedBurrito.bind(this));
     }
 
     async countdown() {
@@ -409,14 +460,20 @@ export class GameScene {
         this.progressBar.hide();
         this.karaokeText.setText(TUTORIAL_COMBINATION);
         await this.karaokeText.fadeIn(0.5);
-        this.tutorialText.setText('PRESS T KEY');
+        this.tutorialText.setText(
+            Utils.isMobile() ? 'PRESS TACO' : 'PRESS T KEY',
+        );
         this.tutorialText.animateIn();
     }
 
     async tutorialNext() {
         const dish = this.karaokeText.getNextWord();
         if (dish) {
-            this.tutorialText.setText(`PRESS ${dish.charAt(0)} KEY`);
+            this.tutorialText.setText(
+                Utils.isMobile()
+                    ? `PRESS ${dish}`
+                    : `PRESS ${dish.charAt(0)} KEY`,
+            );
             this.tutorialText.animateIn();
         } else {
             this.tutorialText.setText(`GO!!!!`);
