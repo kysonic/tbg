@@ -21,8 +21,9 @@ export class MenuScene {
     async init() {
         await this.createBackground();
         await this.createGameTitle();
-        document.getElementById('loader').style.display = 'none';
         this.createStartText();
+
+        window.dispatchEvent(new CustomEvent('resource-loaded'));
     }
 
     async createBackground() {

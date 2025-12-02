@@ -65,6 +65,7 @@ export class GameScene {
             this.container,
         );
 
+        // this.preloadSounds();
         this.prepareSounds();
         this.prepareGreenScreen();
         this.prepareCountdownText();
@@ -175,14 +176,24 @@ export class GameScene {
         }
     }
 
+    async preloadSounds() {
+        await Assets.load('/assets/game/sounds/minus.mp3');
+        await Assets.load('/assets/game/sounds/what-kinda-song.mp3');
+        await Assets.load('/assets/game/sounds/spicy.mp3');
+        await Assets.load('/assets/game/sounds/taco.mp3');
+        await Assets.load('/assets/game/sounds/burrito.mp3');
+        window.dispatchEvent(new CustomEvent('resource-loaded'));
+    }
+
     prepareSounds() {
         sound.add('minus', '/assets/game/sounds/minus.mp3');
-        sound.add('correct', '/assets/game/sounds/correct.mp3');
         sound.add('incorrect', '/assets/game/sounds/incorrect.mp3');
         sound.add('spicier', '/assets/game/sounds/spicy.mp3');
         sound.add('whatkinda', '/assets/game/sounds/what-kinda-song.mp3');
         sound.add('go', '/assets/game/sounds/go.mp3');
         sound.add('countdown', '/assets/game/sounds/countdown.mp3');
+
+        window.dispatchEvent(new CustomEvent('resource-loaded'));
     }
 
     prepareGreenScreen() {

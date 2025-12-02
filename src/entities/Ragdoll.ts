@@ -144,6 +144,8 @@ export class Ragdoll {
                 this.sprites.push(sprite);
             }
         }
+
+        window.dispatchEvent(new CustomEvent('resource-loaded'));
     }
 
     private async createArm(): Promise<void> {
