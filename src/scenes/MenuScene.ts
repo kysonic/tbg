@@ -3,6 +3,7 @@ import { Background } from '../shared/Background';
 import { Nullable } from '../types/common';
 import { Transitions } from '../shared/Transitions';
 import { SceneManager } from '../shared/SceneManager';
+import { sound } from '@pixi/sound';
 
 export class MenuScene {
     public name = 'Menu';
@@ -22,6 +23,7 @@ export class MenuScene {
         await this.createBackground();
         await this.createGameTitle();
         this.createStartText();
+        this.preloadSounds();
 
         window.dispatchEvent(new CustomEvent('resource-loaded'));
     }
@@ -89,6 +91,18 @@ export class MenuScene {
         this.text.on('pointerdown', () => {
             this.sceneManager.changeTo('Game', Transitions.fade(1000));
         });
+    }
+
+    preloadSounds() {
+        sound.add('taco', '/assets/game/sounds/taco.mp3');
+        sound.add('burrito', '/assets/game/sounds/burrito.mp3');
+        sound.add('spicier', '/assets/game/sounds/spicy.mp3');
+        sound.add('whatkinda', '/assets/game/sounds/what-kinda-song.mp3');
+
+        sound.play('spicier', { volume: 0 });
+        sound.play('whatkinda', { volume: 0 });
+        sound.play('taco', { volume: 0 });
+        sound.play('burrito', { volume: 0 });
     }
 
     onStart() {
